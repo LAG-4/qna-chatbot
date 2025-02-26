@@ -2,5 +2,6 @@ langchain-openai
 langchain
 python-dotenv
 langchain_community
-langchain_groq
+langchain-groq
 streamlit
+langchain-ollama

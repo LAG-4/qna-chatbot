@@ -22,7 +22,6 @@ prompt = ChatPromptTemplate(
 )
 
 def generate_response(question, api_key, llm, temperature, max_tokens):
-    # Initialize the ChatOpenAI model with the provided parameters
     llm = ChatOpenAI(model=llm, api_key=api_key, temperature=temperature, max_tokens=max_tokens)
     prompt_text = prompt.format(question=question)
     response = llm.invoke(prompt_text)
