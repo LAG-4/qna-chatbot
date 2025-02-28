@@ -5,3 +5,10 @@ langchain_community
 langchain-groq
 streamlit
 langchain-ollama
+PyPDF
+langchain-huggingface
+faiss-cpu
+langchain-chroma
+pytest-shutil
+flask
+flask_cors
