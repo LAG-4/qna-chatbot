@@ -1,9 +1,7 @@
 import os
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 from dotenv import load_dotenv
-
-# Import the required LangChain components and LLMs
 from langchain_ollama.llms import OllamaLLM
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
@@ -40,12 +38,16 @@ def generate_response_groq(question, engine, temperature, max_tokens):
 def generate_response_openai(question, api_key, model_name, temperature, max_tokens):
     openai_llm = ChatOpenAI(model=model_name, api_key=api_key, temperature=temperature, max_tokens=max_tokens)
     prompt_text = prompt.format(question=question)
-    response = openai_llm.invoke(prompt_text)
-    return response.content
+    response = openai_llm.invoke(prompt_text).content
+    return response
 
 # Initialize the Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
+
+@app.route('/')
+def index():
+    return "Welcome to the Chatbot API!"
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -80,4 +82,4 @@ def chat():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False) # Debug mode is off.
