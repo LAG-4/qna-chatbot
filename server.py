@@ -23,23 +23,27 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-def generate_response_ollama(question, engine, temperature, max_tokens):
-    llm = OllamaLLM(model=engine, temperature=temperature, max_tokens=max_tokens)
+def generate_response_ollama(question, engine):
+    llm = OllamaLLM(model=engine)
     prompt_text = prompt.format(question=question)
     response = llm.invoke(prompt_text)
     return response
 
-def generate_response_groq(question, engine, temperature, max_tokens):
-    llm = ChatGroq(model_name=engine, temperature=temperature, max_tokens=max_tokens)
+def generate_response_groq(question, engine):
+    # Initialize ChatGroq with a default max_tokens of 4096
+    llm = ChatGroq(model_name=engine, max_tokens=4096)
     prompt_text = prompt.format(question=question)
     response = llm.invoke(prompt_text).content
     return response
 
-def generate_response_openai(question, api_key, model_name, temperature, max_tokens):
-    openai_llm = ChatOpenAI(model=model_name, api_key=api_key, temperature=temperature, max_tokens=max_tokens)
+
+def generate_response_openai(question, api_key, model_name):
+    openai_llm = ChatOpenAI(model=model_name, api_key=api_key)
     prompt_text = prompt.format(question=question)
-    response = openai_llm.invoke(prompt_text).content
+    # Increase or remove max_tokens as needed
+    response = openai_llm.invoke(prompt_text, max_tokens=10000).content
     return response
+
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -57,22 +61,20 @@ def chat():
     question = data.get('question')
     backend = data.get('backend')  # should be "Groq", "Ollama", or "OpenAI"
     engine = data.get('engine')
-    temperature = data.get('temperature', 0.7)
-    max_tokens = data.get('max_tokens', 150)
 
     if not question or not backend or not engine:
         return jsonify({"error": "Missing required parameters: question, backend, and engine are required"}), 400
 
     try:
         if backend == "Groq":
-            response_text = generate_response_groq(question, engine, temperature, max_tokens)
+            response_text = generate_response_groq(question, engine)
         elif backend == "Ollama":
-            response_text = generate_response_ollama(question, engine, temperature, max_tokens)
+            response_text = generate_response_ollama(question, engine)
         elif backend == "OpenAI":
             api_key = data.get('api_key')
             if not api_key:
                 return jsonify({"error": "API key required for OpenAI backend"}), 400
-            response_text = generate_response_openai(question, api_key, engine, temperature, max_tokens)
+            response_text = generate_response_openai(question, api_key, engine)
         else:
             return jsonify({"error": "Invalid backend specified"}), 400
 
