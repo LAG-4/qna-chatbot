@@ -12,3 +12,4 @@ langchain-chroma
 pytest-shutil
 flask
 flask_cors
+gunicorn
