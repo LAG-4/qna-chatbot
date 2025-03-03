@@ -13,3 +13,4 @@ pytest-shutil
 flask
 flask_cors
 gunicorn
+replicate

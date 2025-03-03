@@ -9,6 +9,9 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 
+# Import replicate for Claude-3.7-sonnet option
+import replicate
+
 load_dotenv()
 
 # Setup environment variables
@@ -44,6 +47,14 @@ def generate_response(prompt_text, backend, engine, api_key=None):
             raise ValueError("API key required for OpenAI backend")
         openai_llm = ChatOpenAI(model=engine, api_key=api_key)
         response = openai_llm.invoke(prompt_text, max_tokens=10000).content
+    elif backend == "Claude":
+        # Use Replicate's run API for Anthropic Claude-3.7-Sonnet
+        output = replicate.run(
+            "anthropic/claude-3.7-sonnet",
+            input={"prompt": prompt_text}
+        )
+        # If output is a list, join it to form a string response
+        response = "".join(output) if isinstance(output, list) else output
     else:
         raise ValueError("Invalid backend specified")
     return response
@@ -61,7 +72,7 @@ def chat():
     # Expecting a JSON payload
     data = request.get_json()
     question = data.get('question')
-    backend = data.get('backend')  # "Groq", "Ollama", or "OpenAI"
+    backend = data.get('backend')  # "Groq", "Ollama", "OpenAI", or "claude-3.7-sonnet"
     engine = data.get('engine')
     session_id = data.get('session_id', "default_session")  # Session id for chat history
 
@@ -83,4 +94,4 @@ def chat():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run()  # Debug mode is off.
+    app.run()
